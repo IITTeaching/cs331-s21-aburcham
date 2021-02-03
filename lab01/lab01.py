@@ -22,7 +22,14 @@ def captured_output():
 
 # implement this function
 def is_perfect(n):
-    pass
+    sum = 0
+    if n > 0 and isinstance(n,int): #Check that n is a positive integer
+        for x in range(1,n): #Iterate through range to find proper divisors
+            if n % x == 0:
+                sum += x #Add proper divisor to sum
+    return sum == n #Return boolean 
+
+
 
 # (3 points)
 def test1():
@@ -40,8 +47,11 @@ def test1():
 
 # implement this function
 def multiples_of_3_and_5(n):
-    pass
-
+    sum = 0
+    for x in range(1,n):
+        if x % 3 == 0 or x % 5 == 0:
+            sum += x
+    return sum
 # (3 points)
 def test2():
     tc = unittest.TestCase()
@@ -52,8 +62,15 @@ def test2():
 #################################################################################
 # EXERCISE 3
 #################################################################################
+#even perimeter
 def integer_right_triangles(p):
-    pass
+    num = 0
+    for x in range(1, p):
+        for y in range(x , p - x):
+            z = p - (x + y)
+            if x**2 + y**2 == z**2:
+                num += 1
+    return num
 
 def test3():
     tc = unittest.TestCase()
@@ -67,7 +84,29 @@ def test3():
 
 # implement this function
 def gen_pattern(chars):
-    pass
+    length = len(chars)
+    width = length + (length - 1) + ((length * 2) - 2)
+    height = length*2-1
+
+    if length == 1:
+        print(chars + '\n')
+        return
+    
+    def line(x,y):
+        return ''.join(reversed(x))[:y] + ''.join(reversed(''.join(reversed(x))[:y]))[1:]
+
+    mod = len('.'.join(line(chars,length)))
+    for i in range(1, int((height/2)+1)):
+        a = line(chars,i)
+        b = '.'.join(a).center(mod, '.')
+        print(b)
+    
+    for i in range(int((height/2)+1), 0, -1):
+        a = line(chars,i)
+        b = '.'.join(a).center(mod, '.')
+        print(b)
+
+
 
 def test4():
     tc = unittest.TestCase()
