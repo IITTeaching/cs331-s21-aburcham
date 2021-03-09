@@ -117,11 +117,19 @@ class ArrayList:
         and enclosed by square brackets. E.g., for a list containing values
         1, 2 and 3, returns '[1, 2, 3]'."""
         ### BEGIN SOLUTION
+        s = ''
+        if self.len == 0:
+            return '[]'
+        for x in range(self.len-1):
+            s += str(self[x]) + ', '
+        s += str(self[self.len-1])
+        return '[' + s + ']'
         ### END SOLUTION
 
     def __repr__(self):
         """Supports REPL inspection. (Same behavior as `str`.)"""
         ### BEGIN SOLUTION
+        return str(self)
         ### END SOLUTION
 
 
@@ -130,6 +138,13 @@ class ArrayList:
     def append(self, value):
         """Appends value to the end of this list."""
         ### BEGIN SOLUTION
+        if self.len == len(self.data):
+            expanded = ConstrainedList((self.len*2)+1)
+            for x in range(self.len):
+                expanded[x] = self.data[x]
+            self.data = expanded
+        self.data[self.len] = value
+        self.len += 1
         ### END SOLUTION
 
     def insert(self, idx, value):
@@ -137,18 +152,45 @@ class ArrayList:
         list, as needed. Note that inserting a value at len(self) --- equivalent
         to appending the value --- is permitted. Raises IndexError if idx is invalid."""
         ### BEGIN SOLUTION
+        n = self._normalize_idx(idx)
+        if n > self.len:
+            raise IndexError
+        if self.len == len(self.data):
+            s = ConstrainedList((self.len*2)+1)
+            for x in range(idx):
+                s[x] = self.data[x]
+            s[idx] = value
+            for x in range(self.len, idx, -1):
+                s[x] = self.data[x-1]
+            self.data = s
+        else:
+            for x in range(self.len, idx,-1):
+                self.data[x] = self.data[x-1]
+            self.data[idx] = value
+        self.len += 1
         ### END SOLUTION
 
     def pop(self, idx=-1):
         """Deletes and returns the element at idx (which is the last element,
         by default)."""
         ### BEGIN SOLUTION
+        e = self[idx]
+        del self[idx]
+        return e
         ### END SOLUTION
 
     def remove(self, value):
         """Removes the first (closest to the front) instance of value from the
         list. Raises a ValueError if value is not found in the list."""
         ### BEGIN SOLUTION
+        finished = False
+        for x in range(self.len):
+            if self[x] == value:
+                del self[x]
+                finished = True 
+                break
+        if not finished:
+            raise ValueError 
         ### END SOLUTION
 
 
@@ -158,11 +200,21 @@ class ArrayList:
         """Returns True if this ArrayList contains the same elements (in order) as
         other. If other is not an ArrayList, returns False."""
         ### BEGIN SOLUTION
+        if self.len != len(other):
+            return False
+        for x in range(self.len):
+            if self.data[x] != other[x]:
+                return False
+        return True
         ### END SOLUTION
 
     def __contains__(self, value):
         """Implements `val in self`. Returns true if value is found in this list."""
         ### BEGIN SOLUTION
+        for x in range(self.len):
+            if self.data[x] == value:
+                return True
+        return False
         ### END SOLUTION
 
 
@@ -171,16 +223,27 @@ class ArrayList:
     def __len__(self):
         """Implements `len(self)`"""
         ### BEGIN SOLUTION
+        return self.len
         ### END SOLUTION
 
     def min(self):
         """Returns the minimum value in this list."""
         ### BEGIN SOLUTION
+        min = self.data[0]
+        for x in range(1, self.len):
+            if min > self.data[x]:
+                min = self.data[x]
+        return min
         ### END SOLUTION
 
     def max(self):
         """Returns the maximum value in this list."""
         ### BEGIN SOLUTION
+        max = self[0]
+        for x in range(self.len):
+            if max < self[x]:
+                    max = self[x]
+        return max
         ### END SOLUTION
 
     def index(self, value, i=0, j=None):
@@ -189,11 +252,23 @@ class ArrayList:
         specified, search through the end of the list for value. If value
         is not in the list, raise a ValueError."""
         ### BEGIN SOLUTION
+        if j == None:
+            j = self.len
+        j = self._normalize_idx(j)
+        for y in range(i,j):
+            if self[y] == value:
+                return y
+        raise ValueError
         ### END SOLUTION
 
     def count(self, value):
         """Returns the number of times value appears in this list."""
         ### BEGIN SOLUTION
+        count = 0
+        for x in range(self.len):
+            if self[x] == value:
+                count += 1
+        return count
         ### END SOLUTION
 
 
@@ -204,6 +279,12 @@ class ArrayList:
         instance that contains the values in this list followed by those
         of other."""
         ### BEGIN SOLUTION
+        c = ArrayList()
+        for i in range(self.len):
+            c.append(self.data[i])
+        for i in range(len(other)):
+            c.append(other[i])
+        return c
         ### END SOLUTION
 
     def clear(self):
@@ -214,11 +295,17 @@ class ArrayList:
         """Returns a new ArrayList instance (with a separate data store), that
         contains the same values as this list."""
         ### BEGIN SOLUTION
+        c = ArrayList()
+        for x in range(self.len):
+            c.append(self.data[x])
+        return c
         ### END SOLUTION
 
     def extend(self, other):
         """Adds all elements, in order, from other --- an Iterable --- to this list."""
         ### BEGIN SOLUTION
+        for elem in other:
+            self.append(elem)
         ### END SOLUTION
 
 
@@ -227,6 +314,8 @@ class ArrayList:
     def __iter__(self):
         """Supports iteration (via `iter(self)`)"""
         ### BEGIN SOLUTION
+        for x in range(self.len):
+            yield self.data[x]
         ### END SOLUTION
 
 ################################################################################
