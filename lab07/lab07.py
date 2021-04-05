@@ -14,18 +14,59 @@ class ExtensibleHashTable:
 
     def find_bucket(self, key):
         # BEGIN_SOLUTION
+        x = hash(key) % self.n_buckets
+        try:
+            while self.buckets[x][0] != key:
+                x += 1
+                if x == self.n_buckets:
+                    x = 0
+            return x
+        except:
+            raise KeyError
         # END_SOLUTION
 
     def __getitem__(self,  key):
         # BEGIN_SOLUTION
+        try:
+            return self.buckets[self.find_bucket(key)][1]
+        except:
+            raise KeyError
         # END_SOLUTION
 
     def __setitem__(self, key, value):
         # BEGIN_SOLUTION
+        if key not in self:
+            x = hash(key) % self.n_buckets
+            while self.buckets[x]:
+                x = (x + 1) % self.n_buckets
+            self.buckets[x] = (key,value)
+            self.nitems += 1
+            if self.nitems > self.n_buckets * self.fillfactor:
+                new_list = [None] * 2 * self.n_buckets
+                for j in self:
+                    new_x = hash(j) % len(new_list)
+                    while new_list[new_x]:
+                        new_x = (new_x + 1) % len(new_list)
+                    new_list[new_x] = (j, self[j])
+                self.buckets = new_list
+                self.n_buckets *= 2
+        else:
+            x = hash(key) % self.n_buckets
+            while self.buckets[x]:
+                if self.buckets[x][0] == key:
+                    self.buckets[x] = (key, value)
+                    break
+                x = (x + 1) % self.n_buckets
         # END_SOLUTION
 
     def __delitem__(self, key):
         # BEGIN SOLUTION
+        try:
+            x = self.find_bucket(key)
+            self.buckets[x] = (None, None)
+            self.nitems -= 1
+        except:
+            raise KeyError
         # END SOLUTION
 
     def __contains__(self, key):
@@ -43,6 +84,9 @@ class ExtensibleHashTable:
 
     def __iter__(self):
         ### BEGIN SOLUTION
+        for x in self.buckets:
+            if x:
+                yield x[0]
         ### END SOLUTION
 
     def keys(self):
@@ -50,10 +94,14 @@ class ExtensibleHashTable:
 
     def values(self):
         ### BEGIN SOLUTION
+        for x in self:
+            yield self[x]
         ### END SOLUTION
 
     def items(self):
         ### BEGIN SOLUTION
+        for x in self:
+            yield x, self[x]
         ### END SOLUTION
 
     def __str__(self):
