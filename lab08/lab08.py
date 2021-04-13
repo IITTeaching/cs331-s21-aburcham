@@ -24,10 +24,30 @@ class Heap:
 
     def heapify(self, idx=0):
         ### BEGIN SOLUTION
+        left = self._left(idx)
+        right = self._right(idx)
+        x = idx
+        if len(self.data) > left and (self.key(self.data[left]) > self.key(self.data[x])):
+            x = left
+        if len(self.data) > right and (self.key(self.data[right]) > self.key(self.data[x])):
+            x = right 
+        if x != idx:
+            self.data[x], self.data[idx] = self.data[idx], self.data[x]
+            idx = x
+            self.heapify(idx = idx)
         ### END SOLUTION
 
     def add(self, x):
         ### BEGIN SOLUTION
+        idx = len(self.data)
+        self.data.append(x)
+        while idx > 0:
+            p = self._parent(idx)
+            if self.key(self.data[idx]) > self.key(self.data[p]):
+                self.data[p], self.data[idx] = self.data[idx], self.data[p]
+                idx = p
+            else:
+                break
         ### END SOLUTION
 
     def peek(self):
@@ -130,6 +150,26 @@ def test_key_heap_5():
 ################################################################################
 def running_medians(iterable):
     ### BEGIN SOLUTION
+    max_heap = Heap()
+    min_heap = Heap(key = lambda x: -x)
+    median = iterable[0]
+    running = []
+    for j, x in enumerate(iterable):
+        if x <= median:
+            max_heap.add(x)
+        else:
+            min_heap.add(x)
+        if len(max_heap) - len(min_heap) > 1:
+            min_heap.add(max_heap.pop())
+        elif len(min_heap) - len(max_heap) > 1:
+            max_heap.add(min_heap.pop())
+        if j % 2 == 1:
+            median = (min_heap.peek() + max_heap.peek()) / 2
+            running.append(median)
+        else:
+            median = min_heap.peek() if len(min_heap) > len(max_heap) else max_heap.peek()
+            running.append(median)
+    return running
     ### END SOLUTION
 
 ################################################################################
@@ -174,6 +214,15 @@ def test_median_3():
 ################################################################################
 def topk(items, k, keyf):
     ### BEGIN SOLUTION
+    h = Heap(lambda x: -keyf(x))
+    for x in items:
+        if len(h) != k:
+            h.add(x)
+        else:
+            if keyf(x) > keyf(h.peek()):
+                h.pop()
+                h.add(x)
+    return [x for x in h][::-1]
     ### END SOLUTION
 
 ################################################################################
