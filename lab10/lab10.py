@@ -15,6 +15,9 @@ class AVLTree:
 
         def rotate_left(self):
             ### BEGIN SOLUTION
+            n = self.right
+            self.val, n.val = n.val, self.val
+            self.right, n.right, self.left, n.left = n.right, n.left, n, self.left
             ### END SOLUTION
 
         @staticmethod
@@ -31,17 +34,99 @@ class AVLTree:
     @staticmethod
     def rebalance(t):
         ### BEGIN SOLUTION
+        if not t == None:
+            if AVLTree.heightDifference(t) > 1:
+                if AVLTree.heightDifference(t.right) <= -1:
+                    t.right.rotate_right()
+                t.rotate_left()
+            elif AVLTree.heightDifference(t) < -1:
+                if AVLTree.heightDifference(t.left) >= 1:
+                    t.left.rotate_left()
+                t.rotate_right()
         ### END SOLUTION
+    @staticmethod
+    def heightDifference(x):
+        if not x == None:
+            return AVLTree.Node.height(x.right) - AVLTree.Node.height(x.left)
+        return 0
 
     def add(self, val):
         assert(val not in self)
         ### BEGIN SOLUTION
+        x = self.root
+        self.root = self.addHelper(val,x)
         ### END SOLUTION
+
+    def addHelper(self,key,x):
+        if x == None:
+            self.size+=1
+            return self.Node(key,None,None)
+            
+        elif key < x.val:
+            left = self.addHelper(key,x.left)
+            x.left = left
+            AVLTree.rebalance(x)
+            return x
+        elif key > x.val:
+            right = self.addHelper(key,x.right)
+            x.right = right
+            AVLTree.rebalance(x)
+            return x
 
     def __delitem__(self, val):
         assert(val in self)
         ### BEGIN SOLUTION
+        x = self.root
+        self.root = self.deleteHelper(val,x)
+        if not self.fixMyCode == None:
+            self.forceRebalance(self.fixMyCode.val,self.root)
+            self.fixMyCode = None
         ### END SOLUTION
+
+    def forceRebalance(self,key,x):
+        if x == None:
+            return None
+        elif x.val == key:
+            AVLTree.rebalance(x)
+        elif key < x.val:
+            self.forceRebalance(key,x.left)
+            AVLTree.rebalance(x)
+        elif key > x.val:
+            self.forceRebalance(key,x.right)
+            AVLTree.rebalance(x)
+
+    def deleteHelper(self,key,x):
+        if x == None:
+            return None
+        elif key == x.val:
+            noded = None
+            self.size-=1
+            if not x.left == None and not x.right == None:
+                n = self.specialDelete(x.left)
+                x.val = n
+                x.left = self.deleteHelper(n,x.left)
+                noded = x
+                self.fixMyCode = noded
+            elif x.left == None and not x.right == None:
+                noded = x.right
+            elif x.right == None and not x.left == None:
+                noded = x.left
+            return noded
+        elif key > x.val:
+            right = self.deleteHelper(key,x.right)
+            x.right = right
+            AVLTree.rebalance(x)
+            return x
+        elif key < x.val:
+            left = self.deleteHelper(key,x.left)
+            x.left = left
+            AVLTree.rebalance(x)
+            return x
+    def specialDelete(self,x):
+        if x.right == None:
+            return x.val
+        else:
+            return self.specialDelete(x.right)
 
     def __contains__(self, val):
         def contains_rec(node):
