@@ -1,4 +1,5 @@
 from unittest import TestCase
+import statistics
 import random
 
 def quicksort(lst,pivot_fn):
@@ -6,18 +7,35 @@ def quicksort(lst,pivot_fn):
 
 def qsort(lst,low,high,pivot_fn):
     ### BEGIN SOLUTION
+    h = high
+    l = low
+    if h > l:
+        def FindPiv(lst,l,h,pf):
+            while h > l:
+                lst[l], lst[h] = lst[h], lst[l]
+                while lst[l] < pf:
+                    l +=1
+                while lst[h] > pf:
+                    h -=1 
+            return h
+        p = FindPiv(lst, l, h, pivot_fn(lst, l, h))
+        qsort(lst, low, p-1, pivot_fn)
+        qsort(lst, p+1, high, pivot_fn)
     ### END SOLUTION
 
 def pivot_first(lst,low,high):
     ### BEGIN SOLUTION
+    return lst[low]
     ### END SOLUTION
 
 def pivot_random(lst,low,high):
     ### BEGIN SOLUTION
+    return lst[random.randrange(low,high)]
     ### END SOLUTION
 
 def pivot_median_of_three(lst,low,high):
     ### BEGIN SOLUTION
+    return statistics.median([lst[low], lst[(low + high) // 2], lst[high]])
     ### END SOLUTION
 
 ################################################################################
